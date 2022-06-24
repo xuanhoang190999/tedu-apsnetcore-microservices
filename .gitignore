@@ -1,0 +1,6 @@
+apsnetcore-microservices/.vs
+apsnetcore-microservices/BuildingBlocks/Shared/obj
+apsnetcore-microservices/BuildingBlocks/Common.Logging/obj
+apsnetcore-microservices/WebApps/WebHealthStatus/obj
+apsnetcore-microservices/BuildingBlocks/Contracts/obj
+apsnetcore-microservices/BuildingBlocks/Infrastructure/obj
