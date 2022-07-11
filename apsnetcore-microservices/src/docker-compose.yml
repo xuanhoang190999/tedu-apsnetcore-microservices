@@ -44,6 +44,31 @@ services:
     image: docker.elastic.co/kibana/kibana:7.17.2
 
 
+  zookeeper:
+    image: zookeeper
+
+
+  kafka:
+    image: wurstmeister/kafka
+  
+
+  kafka_manager:
+    image: hlebalbau/kafka-manager:stable
+
+
+  #microservices api section
+  product.api:
+    image: ${DOCKER_REGISTRY-}product-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/Product/Product.API/Dockerfile
+
+  customer.api:
+    image: ${DOCKER_REGISTRY-}customer-api:${PLATFORM:-linux}-${TAG:-latest}
+    build:
+      context: .
+      dockerfile: Services/Customer/Customer.API/Dockerfile
+
 #network section
 networks:
   default:

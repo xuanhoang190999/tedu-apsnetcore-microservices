@@ -1,4 +1,4 @@
-version: '3.8'
+﻿version: '3.8'
 
 
 services:
@@ -35,8 +35,12 @@ services:
     environment:
       - POSTGRES_USER=admin
       - POSTGRES_PASSWORD=admin1234
-      - POSTGRES_DB=DiscountDb
+      - POSTGRES_DB=CustomerDb
     restart: always
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
 
   #basketdb: redis
@@ -113,6 +117,60 @@ services:
     ports:
       - "5601:5601"
 
+
+  zookeeper:
+    container_name: zookeeper
+    restart: always
+    hostname: zookeeper
+    ports:
+      - "2181:2181"
+    environment:
+        ZOO_MY_ID: 1
+
+
+  kafka:
+    container_name: kafka
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_ADVERTISED_HOST_NAME: 172.0.0.1
+      KAFKA_ZOOKEEPER_CONNECT: "zookeeper:2181"
+
+
+  kafka_manager:
+    container_name: kafka_manager
+    ports:
+      - "9091:9091"
+    environment:
+      ZK_HOSTS: "zookeeper:2181"
+      APPLICATION_SECRET: "random-secret"
+    command: -Dpidfile.path-/dev/null
+
+
+  #microservice api sections
+  product.api:
+    container_name: product.api
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    - ASPNETCORE_URLS=http://+:80
+    - "ConnectionStrings:DefaultConnectionString=Server=productdb;Port=3306;Database=ProductDB;Uid=root;Pwd=Passw0rd!;"
+    depends_on: # Đợi productdb được build xong mới chạy
+      - productdb
+    ports:
+      - "6002:80"
+    restart: always
+
+  customer.api:
+    container_name: customer.api
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    - ASPNETCORE_URLS=http://+:80
+    - "ConnectionStrings:DefaultConnectionString=Server=customerdb;Port=5432;Database=CustomerDb;User Id=admin;Password=admin1234"
+    depends_on: # Đợi productdb được build xong mới chạy
+      - customerdb
+    ports:
+      - "6003:80"
+    restart: always
 
 
 

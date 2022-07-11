@@ -19,7 +19,7 @@ namespace Common.Logging
                     .Enrich.WithMachineName()
                     .Enrich.WithProperty("Environment", environmentName)
                     .Enrich.WithProperty("Application", applicationName)
-                    .ReadFrom.Configuration(context.Configuration);
+                    .ReadFrom.Configuration(context.Configuration); // Đọc và convert dữ liệu từ file appsetings.json
             };
     }
 }

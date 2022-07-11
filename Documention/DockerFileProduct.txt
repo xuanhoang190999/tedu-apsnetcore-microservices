@@ -1,0 +1,52 @@
+
+FROM mcr.microsoft.com/dotnet/aspnet:6.0 AS base #Lấy 1 image
+WORKDIR /app #Thư mục muốn làm việc
+EXPOSE 80 # expose port 80
+
+FROM mcr.microsoft.com/dotnet/sdk:6.0 AS build
+WORKDIR /src #Thư mục muốn làm việc
+COPY ["Services/Product/Product.API/Product.API.csproj", "Services/Product/Product.API/"]
+COPY ["BuildingBlocks/Common.Logging/Common.Logging.csproj", "BuildingBlocks/Common.Logging/"]
+COPY ["BuildingBlocks/Contracts/Contracts.csproj", "BuildingBlocks/Contracts/"]
+COPY ["BuildingBlocks/Infrastructure/Infrastructure.csproj", "BuildingBlocks/Infrastructure/"]
+COPY ["BuildingBlocks/Shared/Shared.csproj", "BuildingBlocks/Shared/"]
+RUN dotnet restore "Services/Product/Product.API/Product.API.csproj"
+COPY . .
+WORKDIR "/src/Services/Product/Product.API"
+RUN dotnet build "Product.API.csproj" -c Release -o /app/build #WORKDIR đang là /app
+
+FROM build AS publish # chuyển thành public 
+RUN dotnet publish "Product.API.csproj" -c Release -o /app/publish #public file này lên
+
+FROM base AS final
+WORKDIR /app
+COPY --from=publish /app/publish . # Copy publish đẩy sang /app/publish
+ENTRYPOINT ["dotnet", "Product.API.dll"] # cấu lệnh chạy khi dự án đã được public
+
+
+
+**/.dockerignore
+**/.env
+**/.git
+**/.gitignore
+**/.project
+**/.settings
+**/.toolstarget
+**/.vs
+**/.vscode
+**/.idea
+**/*.*proj.user
+**/.dbmdl
+**/.jfm
+**/azds.yaml
+**/bin
+**/charts
+**/docker-compose*
+**/Dockerfile*
+**/node_modules
+**/npm-debug.log
+**/obj
+**/secrets.dev.yaml
+**/values.dev.yaml
+LICENSE
+README.md

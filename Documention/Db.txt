@@ -1,0 +1,2 @@
+dotnet ef migrations add "Init_ProductDB"
+dotnet ef database update --build lại dự án và update migration vào database
