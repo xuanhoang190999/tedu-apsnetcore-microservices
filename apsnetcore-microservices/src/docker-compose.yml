@@ -50,7 +50,7 @@ services:
 
   kafka:
     image: wurstmeister/kafka
-  
+    
 
   kafka_manager:
     image: hlebalbau/kafka-manager:stable

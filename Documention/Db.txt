@@ -1,2 +1,6 @@
 dotnet ef migrations add "Init_ProductDB"
 dotnet ef database update --build lại dự án và update migration vào database
+
+dotnet ef migrations add "Init_OrderDb" --project Ordering.Infrastructure --startup-project Ordering.API --output-dir Persistence/Migrations
+dotnet ef migrations remove --project Ordering.Infrastructure --startup-project Ordering.API
+dotnet ef database update --project Ordering.Infrastructure --startup-project Ordering.API
