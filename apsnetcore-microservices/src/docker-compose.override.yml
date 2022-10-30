@@ -188,5 +188,17 @@ services:
       - "6004:80"
     restart: always
 
+  ordering.api:
+    container_name: ordering.api
+    environment:
+    - ASPNETCORE_ENVIRONMENT=Development
+    - ASPNETCORE_URLS=http://+:80
+    - "ConnectionStrings:DefaultConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=Passw0rd!;Multipleactiveresultsets=true"
+    depends_on: # Đợi productdb được build xong mới chạy
+      - basketdb
+    ports:
+      - "6005:80"
+    restart: always
+
 
 

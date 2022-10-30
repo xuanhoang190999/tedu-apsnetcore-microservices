@@ -13,6 +13,7 @@
 		<PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.0.3" />
 		<PackageReference Include="MediatR" Version="10.0.1" />
 		<PackageReference Include="MediatR.Extensions.Microsoft.DependencyInjection" Version="10.0.1" />
+		<PackageReference Include="Microsoft.Extensions.DependencyInjection.Abstractions" Version="6.0.0" />
 		<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
 	</ItemGroup>
 
@@ -24,8 +25,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-		<Folder Include="Features\V1\Commands\" />
-		<Folder Include="Features\V1\EventHandlers\" />
 		<Folder Include="Features\V2\" />
 	</ItemGroup>
 

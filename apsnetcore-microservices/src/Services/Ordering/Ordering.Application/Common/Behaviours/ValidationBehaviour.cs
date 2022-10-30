@@ -1,6 +1,5 @@
 ﻿using FluentValidation;
 using MediatR;
-using ValidationException = Ordering.Application.Common.Exceptions.ValidationException;
 
 namespace Ordering.Application.Common.Behaviours
 {

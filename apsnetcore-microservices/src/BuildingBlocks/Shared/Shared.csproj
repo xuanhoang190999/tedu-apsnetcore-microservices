@@ -8,6 +8,11 @@
 
   <ItemGroup>
     <Folder Include="DTOs\Customer\" />
+    <Folder Include="DTOs\Ordering\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Microsoft.AspNetCore.Http" Version="2.2.2" />
   </ItemGroup>
 
 </Project>

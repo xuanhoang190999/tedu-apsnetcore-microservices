@@ -40,14 +40,13 @@ namespace Infrastructure.Common
             return entities.Select(x => x.Id).ToList();
         }
 
-        public Task UpdateAsync(T entity)
+        public async Task UpdateAsync(T entity)
         {
-            if(_dbContext.Entry(entity).State == EntityState.Unchanged) return Task.CompletedTask;
+            if (_dbContext.Entry(entity).State == EntityState.Unchanged) return;
 
             T exist = _dbContext.Set<T>().Find(entity.Id);
-            _dbContext.Entry(exist).CurrentValues.SetValues(exist);
-
-            return Task.CompletedTask;
+            _dbContext.Entry(exist).CurrentValues.SetValues(entity);
+            await SaveChangesAsync();
         }
 
         public Task UpdateListAsync(IEnumerable<T> entities) => _dbContext.Set<T>().AddRangeAsync(entities);
@@ -64,6 +63,6 @@ namespace Infrastructure.Common
             return Task.CompletedTask;
         }
 
-        public Task<int> SaveChangesAsync() => _unitOfWork.CommitAsync();
+        public async Task<int> SaveChangesAsync() => await _unitOfWork.CommitAsync();
     }
 }

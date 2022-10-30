@@ -1,5 +1,11 @@
 ﻿
 using Common.Logging;
+using Contracts.Common.Interfaces;
+using Contracts.Messages;
+using Infrastructure.Common;
+using Infrastructure.Messages;
+using Ordering.API.Extensions;
+using Ordering.Application;
 using Ordering.Infrastructure;
 using Ordering.Infrastructure.Persistence;
 using Serilog;
@@ -12,7 +18,13 @@ Log.Information("Start Ordering API up");
 try
 {
     // Add services to the container.
+    builder.Host.AddAppConfigurations();
+    builder.Services.AddConfigurationSettings(builder.Configuration);
+    builder.Services.AddApplicationServices();
     builder.Services.AddInfrastructureServices(builder.Configuration);
+
+    builder.Services.AddScoped<IMessageProducer, RabbitMQProducer>();
+    builder.Services.AddScoped<ISerializeService, SerializeService>();
 
     builder.Services.AddControllers();
     // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
@@ -25,7 +37,9 @@ try
     if (app.Environment.IsDevelopment())
     {
         app.UseSwagger();
-        app.UseSwaggerUI();
+        app.UseSwaggerUI(c => 
+            c.SwaggerEndpoint("/swagger/v1/swagger.json",
+                "Swagger Order API v1"));
     }
 
     // Initialiise and seed database
@@ -36,15 +50,13 @@ try
         await orderContextSeed.SeedAsync();
     }
 
-    app.UseHttpsRedirection();
+    app.UseHttpsRedirection(); //production only
+
+    app.UseAuthorization();
 
     app.MapControllers();
 
-    app.UseRouting();
-    app.UseEndpoints(endpoints =>
-    {
-        endpoints.MapDefaultControllerRoute();
-    });
+    app.MapDefaultControllerRoute();
 
     app.Run();
 }
