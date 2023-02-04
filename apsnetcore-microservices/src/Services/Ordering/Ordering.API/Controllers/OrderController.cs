@@ -48,10 +48,14 @@ namespace Ordering.API.Controllers
         public async Task<ActionResult<long>> CreateOrder([FromBody] OrderDto orderDto)
         {
             var order = _mapper.Map<Order>(orderDto);
-            var addedOrder = await _repository.CreateOrder(order);
+
+            _repository.CreateOrder(order);
+            order.AddedOrder();
             await _repository.SaveChangesAsync();
-            var result = _mapper.Map<OrderDto>(addedOrder);
+
+            var result = _mapper.Map<OrderDto>(order);
             _messageProducer.SendMessage(result);
+
             return Ok(result);
         }
 

@@ -151,6 +151,15 @@ services:
       APPLICATION_SECRET: "random-secret"
     command: -Dpidfile.path-/dev/null
 
+  kafka-ui:
+    container_name: kafka-ui
+    ports:
+      - "9093:9093"
+    restart: always
+    environment:
+      - KAFKA_CLUSTERS_0_NAME=local
+      - KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS=kafka:9092
+
   #microservice api sections
   product.api:
     container_name: product.api
@@ -182,8 +191,10 @@ services:
     - ASPNETCORE_ENVIRONMENT=Development
     - ASPNETCORE_URLS=http://+:80
     - "CacheSettings:ConnectionString=basketdb:6379"
-    depends_on: # Đợi productdb được build xong mới chạy
+    - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+    depends_on: # Đợi basketdb, rabbitmq được build xong mới chạy
       - basketdb
+      - rabbitmq
     ports:
       - "6004:80"
     restart: always
@@ -194,8 +205,10 @@ services:
     - ASPNETCORE_ENVIRONMENT=Development
     - ASPNETCORE_URLS=http://+:80
     - "ConnectionStrings:DefaultConnectionString=Server=orderdb;Database=OrderDb;User Id=sa;Password=Passw0rd!;Multipleactiveresultsets=true"
-    depends_on: # Đợi productdb được build xong mới chạy
-      - basketdb
+    - "EventBusSettings:HostAddress=amqp://guest:guest@rabbitmq:5672"
+    depends_on: # Đợi orderdb, rabbitmq được build xong mới chạy
+      - orderdb
+      - rabbitmq
     ports:
       - "6005:80"
     restart: always

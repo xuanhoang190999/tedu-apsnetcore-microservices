@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using MediatR;
+using Ordering.Application.Common.Exceptions;
 using Ordering.Application.Common.Interfaces;
 using Ordering.Application.Common.Models;
 using Ordering.Domain.Entities;
@@ -25,26 +26,22 @@ namespace Ordering.Application.Features.V1.Orders
 
         public async Task<ApiResult<OrderDto>> Handle(UpdateOrderCommand request, CancellationToken cancellationToken)
         {
-            _logger.Information($"BEGIN: {MethodName} - UserName: {request.UserName}");
+            var orderEntity = await _repository.GetByIdAasync(request.Id);
+            if (orderEntity is null)
+                throw new NotFoundException(nameof(Order), request.Id);
 
-            var order = await _repository.GetByIdAasync(request.Id);
-            if (order == null)
-                return new ApiErrorResult<OrderDto>("Order not exist.");
+            _logger.Information($"BEGIN: {MethodName} - Order: {request.Id}");
 
-            order.UserName = request.UserName;
-            order.TotalPrice = request.TotalPrice;
-            order.FirstName = request.FirstName;
-            order.LastName = request.LastName;
-            order.EmailAddress = request.EmailAddress;
-            order.ShippingAddress = request.ShippingAddress;
-            order.InvoiceAddress = request.InvoiceAddress;
+            orderEntity = _mapper.Map(request, orderEntity);
 
-            await _repository.UpdateAsync(order);
+            var updateOrder = await _repository.UpdateOrderAsync(orderEntity);
             await _repository.SaveChangesAsync();
 
-            var orderDto = _mapper.Map<OrderDto>(order);
+            _logger.Information($"Order {request.Id} was successfully updated");
 
-            _logger.Information($"END: {MethodName} - UserName: {request.UserName}");
+            var orderDto = _mapper.Map<OrderDto>(updateOrder);
+
+            _logger.Information($"END: {MethodName} - Order: {request.Id}");
 
             return new ApiSuccessResult<OrderDto>(orderDto);
         }

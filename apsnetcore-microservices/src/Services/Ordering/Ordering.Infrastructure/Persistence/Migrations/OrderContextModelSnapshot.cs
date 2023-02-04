@@ -33,6 +33,9 @@ namespace Ordering.Infrastructure.Persistence.Migrations
                     b.Property<DateTimeOffset>("CreatedDate")
                         .HasColumnType("datetimeoffset");
 
+                    b.Property<Guid>("DocumentNo")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("EmailAddress")
                         .IsRequired()
                         .HasColumnType("nvarchar(250)");

@@ -1,23 +1,43 @@
-﻿using Contracts.Domains.Interfaces;
+﻿using Contracts.Common.Events;
+using Contracts.Common.Interfaces;
+using Contracts.Domains.Interfaces;
+using Infrastructure.Extensions;
+using MediatR;
 using Microsoft.EntityFrameworkCore;
 using Ordering.Domain.Entities;
-using System;
-using System.Collections.Generic;
-using System.Linq;
 using System.Reflection;
-using System.Text;
-using System.Threading.Tasks;
+using ILogger = Serilog.ILogger;
 
 namespace Ordering.Infrastructure.Persistence
 {
     public class OrderContext : DbContext
     {
-        public OrderContext(DbContextOptions<OrderContext> options) : base(options)
-        {
+        private readonly ILogger _logger;
+        private readonly IMediator _mediator;
 
+        public OrderContext(DbContextOptions<OrderContext> options, IMediator mediator, ILogger logger) : base(options)
+        {
+            _logger = logger;
+            _mediator = mediator;
         }
 
         public DbSet<Order> Orders { get; set; }
+
+        private List<BaseEvent> _baseEvents { get; set; }
+
+        private void SetBaseEventsBeforeSaveChanges()
+        {
+            var domainEntities = ChangeTracker.Entries<IEventEntity>()
+                .Select(x => x.Entity)
+                .Where(x => x.DomainEvents().Any())
+                .ToList();
+
+            _baseEvents = domainEntities
+                .SelectMany(x => x.DomainEvents())
+                .ToList();
+
+            domainEntities.ForEach(x => x.ClearDomainEvents()); // Clear các Event Entity cho lần xử lý này.
+        }
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -26,8 +46,10 @@ namespace Ordering.Infrastructure.Persistence
             base.OnModelCreating(modelBuilder);
         }
 
-        public override Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
+        public override async Task<int> SaveChangesAsync(CancellationToken cancellationToken = new CancellationToken())
         {
+            SetBaseEventsBeforeSaveChanges();
+
             var modified = ChangeTracker.Entries()
                 .Where(e => e.State == EntityState.Modified ||
                     e.State == EntityState.Added ||
@@ -56,7 +78,10 @@ namespace Ordering.Infrastructure.Persistence
             }
 
 
-            return base.SaveChangesAsync(cancellationToken);
+            var result = await base.SaveChangesAsync(cancellationToken);
+            await _mediator.DispatchDomainEventAsync(_baseEvents, _logger);
+
+            return result;
         }
     }
 }

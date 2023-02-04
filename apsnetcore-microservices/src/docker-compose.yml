@@ -50,6 +50,10 @@ services:
 
   kafka:
     image: wurstmeister/kafka
+
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui
     
 
   kafka_manager:

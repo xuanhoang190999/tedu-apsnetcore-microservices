@@ -8,8 +8,10 @@ namespace Ordering.Application.Common.Models
     public class OrderDto : IMapFrom<Order>
     {
         public long Id { get; set; }
+        public string DocumentNo { get; set; }
         public string UserName { get;set; }
         public decimal TotalPrice { get; set; }
+
 
         public string FirstName { get; set; }
         public string LastName { get; set; }

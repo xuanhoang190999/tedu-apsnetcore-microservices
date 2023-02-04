@@ -1,4 +1,8 @@
-﻿using Basket.API.Repositories.Interfaces;
+﻿using AutoMapper;
+using Basket.API.Entities;
+using Basket.API.Repositories.Interfaces;
+using EventBus.Messages.IntegrationEvents.Events;
+using MassTransit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Caching.Distributed;
 using System.ComponentModel.DataAnnotations;
@@ -11,10 +15,14 @@ namespace Basket.API.Controllers
     public class BasketsController : ControllerBase
     {
         private readonly IBasketRepository _repository;
+        private readonly IPublishEndpoint _publishEndPoint;
+        private readonly IMapper _mapper;
 
-        public BasketsController(IBasketRepository repository)
+        public BasketsController(IBasketRepository repository, IPublishEndpoint publishEndPoint, IMapper mapper)
         {
             _repository = repository;
+            _publishEndPoint = publishEndPoint;
+            _mapper = mapper;
         }
 
         [HttpGet("{username}", Name = "GetBasket")]
@@ -43,6 +51,27 @@ namespace Basket.API.Controllers
         {
             var result = await _repository.DeteleBasketFromUserName(username);
             return Ok(result);
+        }
+
+        [Route("[action]")]
+        [HttpPost]
+        [ProducesResponseType((int)HttpStatusCode.Accepted)] // Có 2 kiểu trả về Accepted và NotFound.
+        [ProducesResponseType((int)HttpStatusCode.NotFound)]
+        public async Task<IActionResult> Checkout([FromBody] BasketCheckout basketCheckout)
+        {
+            var basket = await _repository.GetBaskByUserName(basketCheckout.UserName);
+            if(basket == null) return NotFound();
+
+            // publish checkout event to EventBus Message
+            var eventMessage = _mapper.Map<BasketCheckoutEvent>(basketCheckout);
+            eventMessage.TotalPrice = basket.TotalPrice; // Tính lại tiền, tránh việc client thay đổi giá ở API
+
+            await _publishEndPoint.Publish(eventMessage);
+
+            // remove the basket
+            await _repository.DeteleBasketFromUserName(basketCheckout.UserName);
+
+            return Accepted();
         }
     }
 }
