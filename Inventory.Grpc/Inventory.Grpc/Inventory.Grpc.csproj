@@ -1,0 +1,36 @@
+﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Grpc.AspNetCore" Version="2.40.0" />
+	<PackageReference Include="MongoDB.Driver" Version="2.18.0" />
+	<PackageReference Include="Serilog.AspNetCore" Version="5.0.0" />
+	<PackageReference Include="Serilog.Enrichers.Environment" Version="2.2.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Protos\" />
+    <Folder Include="Services\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Reference Include="Common.Logging">
+      <HintPath>..\..\apsnetcore-microservices\src\BuildingBlocks\Common.Logging\obj\Debug\net6.0\Common.Logging.dll</HintPath>
+    </Reference>
+    <Reference Include="Contracts">
+      <HintPath>..\..\apsnetcore-microservices\src\BuildingBlocks\Contracts\obj\Debug\net6.0\Contracts.dll</HintPath>
+    </Reference>
+    <Reference Include="Infrastructure">
+      <HintPath>..\..\apsnetcore-microservices\src\BuildingBlocks\Infrastructure\obj\Debug\net6.0\Infrastructure.dll</HintPath>
+    </Reference>
+    <Reference Include="Shared">
+      <HintPath>..\..\apsnetcore-microservices\src\BuildingBlocks\Shared\obj\Debug\net6.0\Shared.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>

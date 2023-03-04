@@ -1,0 +1,11 @@
+{
+  "Version": 1,
+  "ProjectMap": {
+    "ca11c979-fb95-4666-b4f8-b9115bdb5c73": {
+      "ProjectGuid": "ca11c979-fb95-4666-b4f8-b9115bdb5c73",
+      "DisplayName": "Inventory.Grpc",
+      "ColorIndex": 0
+    }
+  },
+  "NextColorIndex": 1
+}

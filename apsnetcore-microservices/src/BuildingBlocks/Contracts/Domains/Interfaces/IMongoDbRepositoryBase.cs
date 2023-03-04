@@ -1,9 +1,9 @@
-﻿using Inventory.Product.API.Entities.Abstraction;
+﻿using Contracts.Domains;
 using MongoDB.Driver;
 
-namespace Inventory.Product.API.Repositories.Abstraction
+namespace Contracts.Domains.Interfaces
 {
-    public interface IMongoDbRepository<T> where T : MongoEntity
+    public interface IMongoDbRepositoryBase<T> where T : MongoEntity
     {
         IMongoCollection<T> FindAll(ReadPreference readPreference = null);
         Task CreateAsync(T entity);
