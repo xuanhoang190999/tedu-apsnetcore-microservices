@@ -4,7 +4,7 @@ using Inventory.Grpc.Repositories.Interfaces;
 using MongoDB.Driver;
 using Shared.Configurations;
 
-namespace Inventory.Product.API.Extensions
+namespace Inventory.Grpc.Extensions
 {
     public static class ServiceExtensions
     {

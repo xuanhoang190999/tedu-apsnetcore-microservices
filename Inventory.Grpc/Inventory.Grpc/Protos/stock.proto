@@ -1,0 +1,22 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "Inventory.Grpc.Protos";
+
+service StockProtoService {
+	rpc GetStock (GetStockRequest) returns (StockModel); // GetStockRequest là message request, StockModel là message response (bản chất đều là message).
+		// CreateStock
+		// EditStcok
+		// DeleteStock
+}
+
+message GetStockRequest {
+	string itemNo = 1;
+	string documentNo = 2;
+	// 1 và 2 chỉ để nhận biết được thứ tự, chứ không phải gán giá trị.
+}
+
+message StockModel {
+	int32 quantity = 1;
+	// int32 vì giá trị trả về kiểu int (tương tự int64 với kiểu long,...).
+	// 1 là số thứ tự.
+}
