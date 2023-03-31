@@ -21,6 +21,7 @@ try
 
     // Add services to the container.
     builder.Services.ConfigureServices();
+    builder.Services.ConfigureGrpcServices();
     builder.Services.ConfigureRedis(builder.Configuration);
 
     builder.Services.Configure<RouteOptions>(options 

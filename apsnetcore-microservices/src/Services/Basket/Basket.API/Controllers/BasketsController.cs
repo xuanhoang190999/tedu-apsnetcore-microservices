@@ -1,5 +1,6 @@
 ﻿using AutoMapper;
 using Basket.API.Entities;
+using Basket.API.GrpcServices;
 using Basket.API.Repositories.Interfaces;
 using EventBus.Messages.IntegrationEvents.Events;
 using MassTransit;
@@ -17,12 +18,14 @@ namespace Basket.API.Controllers
         private readonly IBasketRepository _repository;
         private readonly IPublishEndpoint _publishEndPoint;
         private readonly IMapper _mapper;
+        private readonly StockItemGrpcService _stockItemGrpcService;
 
-        public BasketsController(IBasketRepository repository, IPublishEndpoint publishEndPoint, IMapper mapper)
+        public BasketsController(IBasketRepository repository, IPublishEndpoint publishEndPoint, IMapper mapper, StockItemGrpcService stockItemGrpcService)
         {
             _repository = repository;
             _publishEndPoint = publishEndPoint;
             _mapper = mapper;
+            _stockItemGrpcService = stockItemGrpcService;
         }
 
         [HttpGet("{username}", Name = "GetBasket")]
@@ -37,9 +40,16 @@ namespace Basket.API.Controllers
         [ProducesResponseType(typeof(Entities.Cart), (int)HttpStatusCode.OK)] // Swagger cho biết kiểu trả về
         public async Task<ActionResult<Entities.Cart>> UpdateBasket([FromBody] Entities.Cart cart)
         {
+            // Communicate with Inventory.Grpc and check quantity available of products
+            foreach(var item in cart.Items)
+            {
+                var stock = await _stockItemGrpcService.GetStock(item.ItemNo);
+                item.SetAvailableQuantity(stock.Quantity);
+            }
+
             var options = new DistributedCacheEntryOptions()
-                .SetAbsoluteExpiration(DateTime.UtcNow.AddHours(1)) // Thời gian tồn tại trong 1 giờ.
-                .SetSlidingExpiration(TimeSpan.FromMinutes(5)); // Sau 5 phút nếu không có hoạt động sẽ bắt đầu tính thời gian 1 tiếng ở trên để xóa xóa cache.
+                .SetAbsoluteExpiration(DateTime.UtcNow.AddHours(10)) // Thời gian tồn tại trong 10 giờ.
+                .SetSlidingExpiration(TimeSpan.FromMinutes(10)); // Sau 10 phút nếu không có hoạt động sẽ bắt đầu tính thời gian 1 tiếng ở trên để xóa xóa cache.
 
             var result = await _repository.UpdateBasket(cart, options);
             return Ok(result);

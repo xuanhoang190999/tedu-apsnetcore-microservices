@@ -26,7 +26,7 @@ namespace Inventory.Grpc.Services
                 Quantity = stockQuantity
             };
 
-            _logger.Information($"END Get Stock of ItemNo {request.ItemNo} - Quantity: ");
+            _logger.Information($"END Get Stock of ItemNo {request.ItemNo} - Quantity: {result.Quantity}");
 
             return result;
         }
